@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash,json
 from sqlalchemy import select, func, desc
 from sqlalchemy.exc import SQLAlchemyError
 
-from models import Usuario, Livro, Emprestimo, db_session
+from models import Usuario, Livro, Emprestimo, local_session
 from sqlalchemy import func
 
 app = Flask(__name__)
@@ -32,6 +32,7 @@ def criar_usuario():
 
     :return: cadastra o usuario
     """
+    db_session = local_session()
     try:
         informacoes = request.get_json()
         print(informacoes)
@@ -48,7 +49,7 @@ def criar_usuario():
                         endereco = informacoes["endereco"]
 
                         )
-        post.save()
+        post.save(db_session)
 
         return jsonify(
             {
@@ -61,6 +62,8 @@ def criar_usuario():
             })
     except SQLAlchemyError as e:
         return jsonify({'status': 'erro', 'mensagem': str(e)})
+    finally:
+        db_session.close()
 
 @app.route('/lista_usuario', methods=["GET"])
 def listar_usuario():
@@ -74,6 +77,8 @@ def listar_usuario():
 
         :return: a lista ou a mensagem de erro
     """
+    db_session = local_session()
+
     try:
         sql_usuario = select(Usuario)
         result = db_session.execute(sql_usuario).scalars()
@@ -83,6 +88,8 @@ def listar_usuario():
         return jsonify({'usuarios': lista_usuario})
     except SQLAlchemyError as e:
         return jsonify({'status': 'erro', 'mensagem': str(e)})
+    finally:
+        db_session.close()
 
 
 @app.route('/atualizar_usuario/<int:id_usuario>', methods=["PUT"])
@@ -95,6 +102,8 @@ def atualizar_usuario(id_usuario):
     :param id_usuario: id do usuario que vai ser atualizado para assim localizado
     :return: atualiza o usuario
     """
+    db_session = local_session()
+
     try:
         usuario = db_session.execute(select(Usuario).where(Usuario.id_usuario == id_usuario)).scalar()
         if usuario is None:
@@ -110,6 +119,8 @@ def atualizar_usuario(id_usuario):
         return jsonify({'status': 'sucesso'})
     except SQLAlchemyError as e:
         return jsonify({'status': 'erro', 'mensagem': str(e)})
+    finally:
+        db_session.close()
 
 
 
@@ -134,6 +145,7 @@ def criar_emprestimo():
 
         :return: o cadastro do emprestimo dos livros
         """
+    db_session = local_session()
 
     try:
         informacoes = request.get_json()
@@ -177,7 +189,7 @@ def criar_emprestimo():
                         id_livro = informacoes["id_livro"],
                         id_usuario= informacoes["id_usuario"]
                         )
-        post.save()
+        post.save(db_session)
 
 
 
@@ -193,6 +205,8 @@ def criar_emprestimo():
         )
     except SQLAlchemyError as e:
         return jsonify({'status': 'erro', 'mensagem': str(e)})
+    finally:
+        db_session.close()
 
 
 @app.route('/lista_emprestimo', methods=["GET"])
@@ -207,6 +221,7 @@ def listar_emprestimo():
 
            :return: a lista ou a mensagem de erro
     """
+    db_session = local_session()
 
     try:
         sql_emprestimo = select(Emprestimo)
@@ -217,6 +232,8 @@ def listar_emprestimo():
         return jsonify({'emprestimo': lista_emprestimo})
     except SQLAlchemyError as e:
         return jsonify({'status': 'erro', 'mensagem': str(e)})
+    finally:
+        db_session.close()
 
 
 @app.route('/atualizar_emprestimo/<int:id_emprestimo>', methods=["PUT"])
@@ -229,6 +246,8 @@ def atualizar_emprestimo(id_emprestimo):
     :param id_emprestimo: id do emprestimo que vai ser atualizado para assim localizado
     :return: atualiza o emprestimo
     """
+    db_session = local_session()
+
     try:
         emprestimo = db_session.execute(select(Emprestimo).where(Emprestimo.id_emprestimo == id_emprestimo)).scalar()
         if emprestimo is None:
@@ -246,6 +265,8 @@ def atualizar_emprestimo(id_emprestimo):
         return jsonify({'status': 'sucesso'})
     except SQLAlchemyError as e:
         return jsonify({'status': 'erro', 'mensagem': str(e)})
+    finally:
+        db_session.close()
 
 
 
@@ -267,6 +288,8 @@ def criar_livro():
 
            :return: o cadastro do livro
            """
+    db_session = local_session()
+
     try:
         informacoes = request.get_json()
         # relacao = db_session.execute(select(Livro).where(Livro.id_livro == informacoes["id_livro"])).scalar()
@@ -282,21 +305,18 @@ def criar_livro():
                         ISBN = informacoes["ISBN"],
                         resumo = informacoes["resumo"]
                         )
-        post.save()
+        post.save(db_session)
 
         return jsonify(
             {
                 "status": "sucesso",
                 "mensagem":"livro- criado com sucesso",
-                "id": post.id_livro,
-                "titulo": informacoes["titulo"],
-                "autor": informacoes["autor"],
-                "ISBN": informacoes["ISBN"],
-                "resumo": informacoes["resumo"]
             }
         )
     except SQLAlchemyError as e:
         return jsonify({'status': 'erro', 'mensagem': str(e)})
+    finally:
+        db_session.close()
 
 
 @app.route('/lista_livro', methods=["GET"])
@@ -310,6 +330,8 @@ def listar_livros():
 
            :return: a lista ou a mensagem de erro
     """
+    db_session = local_session()
+
     try:
         sql_livro = select(Livro)
         result = db_session.execute(sql_livro).scalars()
@@ -319,6 +341,8 @@ def listar_livros():
         return jsonify({'livros': lista_livro})
     except SQLAlchemyError as e:
         return jsonify({'status': 'erro', 'mensagem': str(e)})
+    finally:
+        db_session.close()
 
 @app.route('/atualizar_livro/<int:id_livro>', methods=["PUT"])
 def atualizar_livro(id_livro):
@@ -330,6 +354,8 @@ def atualizar_livro(id_livro):
     :param id_livro: id do livro que vai ser atualizado para assim localizado
     :return: atualiza o livro
     """
+    db_session = local_session()
+
     try:
         livro = db_session.execute(select(Livro).where(Livro.id_livro == id_livro)).scalar()
         if livro is None:
@@ -346,6 +372,8 @@ def atualizar_livro(id_livro):
         return jsonify({'status': 'sucesso'})
     except SQLAlchemyError as e:
         return jsonify({'status': 'erro', 'mensagem': str(e)})
+    finally:
+        db_session.close()
 
 
 

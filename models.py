@@ -1,13 +1,15 @@
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Float
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship, declarative_base
 #configuração base de dados
 engine = create_engine('sqlite:///controle_estoque.sqlite3') #nome do banco
-db_session = scoped_session(sessionmaker(bind=engine))
+# db_session = scoped_session(sessionmaker(bind=engine)) - atualizado
+local_session = sessionmaker(bind=engine)
 
 
 #modo declarativo
 Base = declarative_base()
-Base.query = db_session.query_property()
+# Base.query = db_session.query_property()
 
 
 #Pessoas que tem atividade
@@ -23,14 +25,22 @@ class Usuario(Base):
         return '<Funcionario: {} {} {} {}>' .format(self.id_usuario, self.CPF, self.Nome, self.endereco, )
 
 
-    def save(self):
-        db_session.add(self)
-        db_session.commit()
+    def save(self, db_session):
+        try:
+            db_session.add(self)
+            db_session.commit()
+        except SQLAlchemyError as e:
+            db_session.rollback()
+            raise
 
 #função para deletar
-    def delete(self):
-        db_session.delete(self)
-        db_session.commit()
+    def delete(self, db_session):
+        try:
+            db_session.delete(self)
+            db_session.commit()
+        except SQLAlchemyError as e:
+            db_session.rollback()
+            raise
 
     def serialize_usuarios(self):
         dados_usuario = {
@@ -56,14 +66,22 @@ class Livro(Base):
 
 #função para salvar no banco
 
-    def save(self):
-        db_session.add(self)#seção de acesso
-        db_session.commit() #salva a informação
+    def save(self, db_session):
+        try:
+            db_session.add(self)#seção de acesso
+            db_session.commit() #salva a informação
+        except SQLAlchemyError as e:
+            db_session.rollback()
+            raise
 
 #função para deletar
-    def delete(self):
-        db_session.delete(self)#deletar
-        db_session.commit()# salvar
+    def delete(self, db_session):
+        try:
+            db_session.delete(self)#deletar
+            db_session.commit()# salvar
+        except SQLAlchemyError as e:
+            db_session.rollback()
+            raise
 
     def serialize_livro(self):
         dados_livros = {
@@ -96,14 +114,23 @@ class Emprestimo(Base):
 
 #função para salvar no banco
 
-    def save(self):
-        db_session.add(self)#seção de acesso
-        db_session.commit() #salva a informação
+    def save(self, db_session):
+        try:
+            db_session.add(self)#seção de acesso
+            db_session.commit() #salva a informação
+        except SQLAlchemyError as e:
+            db_session.rollback()
+            raise
 
 #função para deletar
-    def delete(self):
-        db_session.delete(self)#deletar
-        db_session.commit()# salvar
+    def delete(self, db_session):
+        try:
+            db_session.delete(self)#deletar
+            db_session.commit()# salvar
+        except SQLAlchemyError as e:
+            db_session.rollback()
+            raise
+
 
     def serialize_emprestimo(self):
         dados_emprestimo = {
