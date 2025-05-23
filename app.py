@@ -64,7 +64,7 @@ def criar_usuario():
         return jsonify({'status': 'erro', 'mensagem': str(e)})
     finally:
         db_session.close()
-
+#proteger
 @app.route('/lista_usuario', methods=["GET"])
 def listar_usuario():
     """
@@ -91,7 +91,7 @@ def listar_usuario():
     finally:
         db_session.close()
 
-
+#proteger
 @app.route('/atualizar_usuario/<int:id_usuario>', methods=["PUT"])
 def atualizar_usuario(id_usuario):
     """
@@ -114,7 +114,7 @@ def atualizar_usuario(id_usuario):
         usuario.Nome = dados_usuario["nome"]
         usuario.CPF = dados_usuario["CPF"]
         usuario.endereco = dados_usuario["endereco"]
-        usuario.save()
+        usuario.save(db_session)
 
         return jsonify({'status': 'sucesso'})
     except SQLAlchemyError as e:
@@ -235,7 +235,7 @@ def listar_emprestimo():
     finally:
         db_session.close()
 
-
+#proteger
 @app.route('/atualizar_emprestimo/<int:id_emprestimo>', methods=["PUT"])
 def atualizar_emprestimo(id_emprestimo):
     """
@@ -260,7 +260,7 @@ def atualizar_emprestimo(id_emprestimo):
         emprestimo.id_livro = dados_emprestimo["id_livro"]
         emprestimo.id_usuario = dados_emprestimo["id_usuario"]
 
-        emprestimo.save()
+        emprestimo.save(db_session)
 
         return jsonify({'status': 'sucesso'})
     except SQLAlchemyError as e:
@@ -269,7 +269,7 @@ def atualizar_emprestimo(id_emprestimo):
         db_session.close()
 
 
-
+#proteger
 @app.route('/cadastro_livro', methods=["POST"])
 def criar_livro():
     """
@@ -318,7 +318,7 @@ def criar_livro():
     finally:
         db_session.close()
 
-
+#proteger
 @app.route('/lista_livro', methods=["GET"])
 def listar_livros():
     """
@@ -344,6 +344,7 @@ def listar_livros():
     finally:
         db_session.close()
 
+#proteger
 @app.route('/atualizar_livro/<int:id_livro>', methods=["PUT"])
 def atualizar_livro(id_livro):
     """
@@ -367,7 +368,7 @@ def atualizar_livro(id_livro):
         livro.autor = dados_livro["autor"]
         livro.ISBN = dados_livro["ISBN"]
         livro.resumo = dados_livro["resumo"]
-        livro.save()
+        livro.save(db_session)
 
         return jsonify({'status': 'sucesso'})
     except SQLAlchemyError as e:
@@ -380,4 +381,4 @@ def atualizar_livro(id_livro):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
