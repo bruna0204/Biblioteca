@@ -37,10 +37,10 @@ def criar_usuario():
         informacoes = request.get_json()
         print(informacoes)
         if not "nome" in informacoes or not "CPF" in informacoes or not "endereco" in informacoes:
-            return jsonify({'status': 'erro','mensagem': 'Obrigatorio Nome, CPF e endereco'})
+            return jsonify({'status': 'erro','mensagem': 'Obrigatorio Nome, CPF e endereco'}),400
 
         if informacoes["endereco"] == "" or informacoes["nome"] == "" or informacoes["CPF"] == "":
-            return jsonify({'status': 'erro', 'mensagem': 'Erro preencha os espaços'})
+            return jsonify({'status': 'erro', 'mensagem': 'Erro preencha os espaços'}),400
         #if existe_cpf:
          #   return jsonify({'status': "erro", 'mensagem': 'usuario ja existente'})
 
@@ -49,7 +49,7 @@ def criar_usuario():
                         endereco = informacoes["endereco"]
 
                         )
-        post.save(db_session)
+        post.save(db_session),
 
         return jsonify(
             {
@@ -59,7 +59,8 @@ def criar_usuario():
                 "nome": informacoes["nome"],
                 "cpf": informacoes["CPF"],
                 "endereco": informacoes["endereco"]
-            })
+            }),201
+
     except SQLAlchemyError as e:
         return jsonify({'status': 'erro', 'mensagem': str(e)})
     finally:
@@ -178,10 +179,10 @@ def criar_emprestimo():
 
 
         if not "data_de_emprestimo" in informacoes or not "data_de_devolucao" or not "id_livro" in informacoes or not "id_usuario" in informacoes:
-            return jsonify({'status': 'erro','mensagem': 'Obrigatorio Nome, CPF e endereco'})
+            return jsonify({'status': 'erro','mensagem': 'campos obrigatorios'}),400
 
         if informacoes["data_de_emprestimo"] == "" or informacoes["data_de_devolucao"] == "" or informacoes["id_livro"] == "" or informacoes["id_usuario"] == "":
-            return jsonify({'status': 'erro', 'mensagem': 'Erro preencha os espaços'})
+            return jsonify({'status': 'erro', 'mensagem': 'Erro preencha os espaços'}),400
 
 
         post = Emprestimo(data_de_emprestimo = informacoes["data_de_emprestimo"],
@@ -202,7 +203,7 @@ def criar_emprestimo():
                 "id_livro": informacoes["id_livro"],
                 "id_usuario": informacoes["id_usuario"]
             }
-        )
+        ),201
     except SQLAlchemyError as e:
         return jsonify({'status': 'erro', 'mensagem': str(e)})
     finally:
@@ -295,10 +296,10 @@ def criar_livro():
         # relacao = db_session.execute(select(Livro).where(Livro.id_livro == informacoes["id_livro"])).scalar()
         print(informacoes)
         if not "titulo" in informacoes or not "autor" in informacoes or not "ISBN" in informacoes or not "resumo" in informacoes:
-            return jsonify({'status': 'erro','mensagem': 'Obrigatorio Nome, CPF e endereco'})
+            return jsonify({'status': 'erro','mensagem': 'Obrigatorio Nome, CPF e endereco'}),400
 
         if informacoes["titulo"] == "" or informacoes["autor"] == "" or informacoes["ISBN"] == "" or informacoes["resumo"] == "":
-            return jsonify({'status': 'erro', 'mensagem': 'Erro preencha os espaços'})
+            return jsonify({'status': 'erro', 'mensagem': 'Erro preencha os espaços'}),400
 
         post = Livro(titulo = informacoes["titulo"],
                         autor = informacoes["autor"],
@@ -312,9 +313,9 @@ def criar_livro():
                 "status": "sucesso",
                 "mensagem":"livro- criado com sucesso",
             }
-        )
+        ),201
     except SQLAlchemyError as e:
-        return jsonify({'status': 'erro', 'mensagem': str(e)})
+        return jsonify({'status': 'erro', 'mensagem': str(e)}),400
     finally:
         db_session.close()
 
@@ -340,7 +341,7 @@ def listar_livros():
             lista_livro.append(livro.serialize_livro())
         return jsonify({'livros': lista_livro})
     except SQLAlchemyError as e:
-        return jsonify({'status': 'erro', 'mensagem': str(e)})
+        return jsonify({'status': 'erro', 'mensagem': str(e)}),400
     finally:
         db_session.close()
 
@@ -368,6 +369,7 @@ def atualizar_livro(id_livro):
         livro.autor = dados_livro["autor"]
         livro.ISBN = dados_livro["ISBN"]
         livro.resumo = dados_livro["resumo"]
+
         livro.save(db_session)
 
         return jsonify({'status': 'sucesso'})
@@ -376,6 +378,61 @@ def atualizar_livro(id_livro):
     finally:
         db_session.close()
 
+
+@app.route('/mostrar_livro', methods=["GET"])
+def mostrar_livro(id_livro):
+    """
+           API para verificar um livro.
+
+           ## Endpoint:
+            /get_livro/<int:id>
+
+            ##Parâmetros:
+            "id" **Id do livro**
+
+           ## Respostas (JSON):
+           ```json
+
+        {
+            "id":,
+            "titulo":
+            "autor",
+            "isbn":,
+            "resumo",
+        }
+
+        ## Erros possíveis (JSON):
+            "Não foi possível listar os dados do livro ***400
+            Bad Request***:
+                ```json
+           """
+    db_session = local_session()
+
+    try:
+        livro = db_session.execute(select(Livro).where(Livro.id_livro == id_livro)).scalar()
+
+        if not livro:
+            return jsonify({
+                "error": "Livro não encontrado!"
+            }), 400
+
+        else:
+            return jsonify({
+                "id_livro": livro.id_livro,
+                "titulo": livro.titulo,
+                "autor": livro.autor,
+                "ISBN": livro.ISBN,
+                "resumo": livro.resumo
+            }), 200
+
+    except ValueError:
+        return jsonify({
+            "error": "Não foi possívl listar os dados do livro"
+        }), 400
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 400
+    finally:
+        db_session.close()
 
 
 

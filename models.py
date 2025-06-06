@@ -47,7 +47,7 @@ class Usuario(Base):
             'id_usuarios': self.id_usuario,
             'CPF': self.CPF,
             'Nome': self.Nome,
-            'endereca': self.endereco,
+            'endereco': self.endereco,
         }
         return dados_usuario
 
@@ -137,7 +137,7 @@ class Emprestimo(Base):
             'id_emprestimo': self.id_emprestimo,
             'data_de_emprestimo': self.data_de_emprestimo,
             'data_de_devolucao': self.data_de_devolucao,
-            'id_usuario': self.id_emprestimo,
+            'id_usuario': self.id_usuario,
             'id_livro': self.id_livro,
 
         }
