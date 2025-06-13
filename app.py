@@ -361,9 +361,10 @@ def atualizar_livro(id_livro):
     try:
         livro = db_session.execute(select(Livro).where(Livro.id_livro == id_livro)).scalar()
         if livro is None:
-            return jsonify({"status": "erro", "mensagem": "livro não encontrado"})
+            return jsonify({"status": "erro", "mensagem": "livro não encontrado"}),404
 
         dados_livro = request.get_json()
+
 
         livro.titulo = dados_livro["titulo"]
         livro.autor = dados_livro["autor"]
@@ -375,11 +376,12 @@ def atualizar_livro(id_livro):
         return jsonify({'status': 'sucesso'})
     except SQLAlchemyError as e:
         return jsonify({'status': 'erro', 'mensagem': str(e)})
+
     finally:
         db_session.close()
 
 
-@app.route('/mostrar_livro', methods=["GET"])
+@app.route('/mostrar_livro/<id_livro>', methods=["GET"])
 def mostrar_livro(id_livro):
     """
            API para verificar um livro.
@@ -428,6 +430,62 @@ def mostrar_livro(id_livro):
     except ValueError:
         return jsonify({
             "error": "Não foi possívl listar os dados do livro"
+        }), 400
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 400
+    finally:
+        db_session.close()
+
+
+
+@app.route('/mostrar_user/<id_usuario>', methods=["GET"])
+def mostrar_user(id_usuario):
+    """
+           API para verificar um livro.
+
+           ## Endpoint:
+            /get_livro/<int:id>
+
+            ##Parâmetros:
+            "id" **Id do livro**
+
+           ## Respostas (JSON):
+           ```json
+
+        {
+            "id":,
+            "titulo":
+            "autor",
+            "isbn":,
+            "resumo",
+        }
+
+        ## Erros possíveis (JSON):
+            "Não foi possível listar os dados do livro ***400
+            Bad Request***:
+                ```json
+           """
+    db_session = local_session()
+
+    try:
+        usuario = db_session.execute(select(Usuario).where(Usuario.id_usuario == id_usuario)).scalar()
+
+        if not usuario:
+            return jsonify({
+                "error": "user não encontrado!"
+            }), 400
+
+        else:
+            return jsonify({
+                "id_usuario": usuario.id_usuario,
+                'CPF': usuario.CPF,
+                'Nome': usuario.Nome,
+                'endereco': usuario.endereco,
+            }), 200
+
+    except ValueError:
+        return jsonify({
+            "error": "Não foi possível listar os dados do user"
         }), 400
     except Exception as e:
         return jsonify({"erro": str(e)}), 400
