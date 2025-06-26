@@ -168,8 +168,8 @@ def criar_emprestimo():
 
         emprestimo_existente = db_session.execute(
             select(Emprestimo).where(
-                (Emprestimo.id_livro == informacoes["id_livro"]) &
-                (Emprestimo.id_usuario == informacoes["id_usuario"])
+                (Emprestimo.id_livro  == informacoes["id_livro"]) &
+                (Emprestimo.status == "emprestimo")
             )
         ).scalar()
 
@@ -178,15 +178,17 @@ def criar_emprestimo():
 
 
 
-        if not "data_de_emprestimo" in informacoes or not "data_de_devolucao" or not "id_livro" in informacoes or not "id_usuario" in informacoes:
+        if not "data_de_emprestimo" in informacoes or not "data_de_devolucao" or not "id_livro" in informacoes or not "id_usuario" in informacoes or not "status" in informacoes:
             return jsonify({'status': 'erro','mensagem': 'campos obrigatorios'}),400
 
-        if informacoes["data_de_emprestimo"] == "" or informacoes["data_de_devolucao"] == "" or informacoes["id_livro"] == "" or informacoes["id_usuario"] == "":
+        if informacoes["data_de_emprestimo"] == "" or informacoes["data_de_devolucao"] == "" or informacoes["id_livro"] == "" or informacoes["id_usuario"] == "" or informacoes["status"] == "":
             return jsonify({'status': 'erro', 'mensagem': 'Erro preencha os espaços'}),400
+
 
 
         post = Emprestimo(data_de_emprestimo = informacoes["data_de_emprestimo"],
                         data_de_devolucao = informacoes["data_de_devolucao"],
+                        status = informacoes["status"],
                         id_livro = informacoes["id_livro"],
                         id_usuario= informacoes["id_usuario"]
                         )
@@ -196,8 +198,9 @@ def criar_emprestimo():
 
         return jsonify(
             {
-                "status": "sucesso",
+                "resultado": "sucesso",
                 "mensagem":"Emprestimo criado com sucesso",
+                "status": informacoes["status"],
                 "data_de_emprestimo": informacoes["data_de_emprestimo"],
                 "data_de_devolucao": informacoes["data_de_devolucao"],
                 "id_livro": informacoes["id_livro"],
@@ -208,7 +211,6 @@ def criar_emprestimo():
         return jsonify({'status': 'erro', 'mensagem': str(e)})
     finally:
         db_session.close()
-
 
 @app.route('/lista_emprestimo', methods=["GET"])
 def listar_emprestimo():
@@ -258,6 +260,7 @@ def atualizar_emprestimo(id_emprestimo):
 
         emprestimo.data_de_emprestimo = dados_emprestimo["data_de_emprestimo"]
         emprestimo.data_de_devolucao = dados_emprestimo["data_de_devolucao"]
+        emprestimo.status = dados_emprestimo["status"]
         emprestimo.id_livro = dados_emprestimo["id_livro"]
         emprestimo.id_usuario = dados_emprestimo["id_usuario"]
 

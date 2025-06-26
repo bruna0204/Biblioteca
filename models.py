@@ -103,6 +103,7 @@ class Emprestimo(Base):
     id_emprestimo = Column(Integer, primary_key=True) #chave primaria (unico) integer = tipo de dado
     data_de_emprestimo = Column(String(20), nullable=False, index=True) #nullable tem que obrigatoriamente preencher o espaço
     data_de_devolucao = Column(String(27), nullable=False, index=True)# index pesquisa
+    status = Column(String(20), nullable=False, index=True)
     id_usuario = Column(Integer, ForeignKey('tab_usuarios.id_usuario'), nullable=False)#string o tamanho dele
     usuario = relationship('Usuario')
     id_livro = Column(Integer, ForeignKey('tab_livros.id_livro'), nullable=False)
@@ -110,7 +111,7 @@ class Emprestimo(Base):
     #colum = coluna
 
     def __repr__(self):
-        return '<Emprestimo: {} {} {} {} {}>' .format(self.id_emprestimo, self.data_de_emprestimo, self.data_de_devolucao, self.id_livro, self.id_usuario)#self ele chama ele mesmo
+        return '<Emprestimo: {} {} {} {} {} {}>' .format(self.id_emprestimo, self.data_de_emprestimo, self.data_de_devolucao, self.id_livro, self.id_usuario, self.status)#self ele chama ele mesmo
 
 #função para salvar no banco
 
@@ -137,6 +138,7 @@ class Emprestimo(Base):
             'id_emprestimo': self.id_emprestimo,
             'data_de_emprestimo': self.data_de_emprestimo,
             'data_de_devolucao': self.data_de_devolucao,
+            'status': self.status,
             'id_usuario': self.id_usuario,
             'id_livro': self.id_livro,
 
