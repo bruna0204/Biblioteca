@@ -497,6 +497,78 @@ def mostrar_user(id_usuario):
 
 
 
+@app.route('/lista_so_emprestimo', methods=["GET"])
+def lista_so_emprestimo():
+    """
+           API para listar somente emprestimos.
+
+           ## Endpoint:
+            /mostrar livro/
+
+
+           ## Respostas (JSON):
+           ```json
+
+        ## Erros possíveis (JSON):
+            "Não foi possível listar os dados do emprestimos ***400
+            Bad Request***:
+                ```json
+           """
+    db_session = local_session()
+
+    try:
+        so_emprestimo = db_session.execute(select(Emprestimo).where(Emprestimo.status == "emprestimo")).scalar()
+        lista_emprestimo = []
+        for emprestimos in so_emprestimo:
+            lista_emprestimo.append(emprestimos.serialize_emprestimo())
+        return jsonify({'emprestimo': lista_emprestimo})
+
+    except ValueError:
+        return jsonify({
+            "error": "Não foi possívl listar os dados do emprestimo"
+        }), 400
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 400
+    finally:
+        db_session.close()
+
+
+@app.route('/mostrar_devolucao', methods=["GET"])
+def lista_so_devolucao():
+    """
+           API para listar somente emprestimos.
+
+           ## Endpoint:
+            /mostrar livro/
+
+
+           ## Respostas (JSON):
+           ```json
+
+        ## Erros possíveis (JSON):
+            "Não foi possível listar os dados do emprestimos ***400
+            Bad Request***:
+                ```json
+           """
+    db_session = local_session()
+
+    try:
+        so_emprestimo = db_session.execute(select(Emprestimo).where(Emprestimo.status == "emprestimo")).scalar()
+        lista_emprestimo = []
+        for emprestimos in so_emprestimo:
+            lista_emprestimo.append(emprestimos.serialize_emprestimo())
+        return jsonify({'emprestimo': lista_emprestimo})
+
+    except ValueError:
+        return jsonify({
+            "error": "Não foi possívl listar os dados do emprestimo"
+        }), 400
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 400
+    finally:
+        db_session.close()
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
